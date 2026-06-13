@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Mean Radiant Temperature - Basic</title>
+<style>
+  .canvas-wrapper {
+    display: inline-block;
+    background: black;   /* fake border */
+    padding: 15px;       /* border thickness */
+  }
+
+  canvas {
+    background: white;   /* canvas stays white */
+    display: block;
+  }
+
+  input {
+    width: 100px;
+    text-align: center;
+  }
+</style>
+
+  </head>
+  <body>
+    <div style="text-align:center; margin-top:20px; margin-bottom:10px;">
+      Room Size: <input type="text" id="roomSizeInput" placeholder="Room Size" value="12">ft x <input type="text" id="roomSizeInput2" placeholder="Room Size" value="12">ft
+    </div>
+    <div style="text-align:center; margin-bottom:50px;">
+      <button id="submitButton" onclick="changeRoomSize()">Submit</button>
+    </div>
+    <div style="text-align:center;">
+      Click inside the box to move the occupant or click the center button to place them in the middle of the room.
+    </div>
+        <div style="text-align:center; margin-bottom:50px;">
+      <button id="submitButton" onclick="changeRoomSize()">Center Occupant</button>
+    </div>
+  <table style="margin:auto; border-collapse:collapse;">
+    <tr>
+      <td></td>
+      <td style="text-align:center;">
+        <div id="topLength"></div>
+        <div>
+          <input type="text" id="topInput" placeholder="Top Temp" value="72">°F
+        </div>
+        <div>
+          <label for="topInput" id="topLabel">0</label>
+        </div>
+      </td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td style="text-align:center;">
+        <div id="leftLength"></div>
+        <div>
+          <input type="text" id="leftInput" placeholder="Left Temp" value="72">°F
+        </div>
+        <div>
+          <label for="leftInput" id="leftLabel">0</label>
+        </div>
+      </td>
+
+      <td style="padding:20px;">
+        <div class="canvas-wrapper">
+          <canvas id="canvas" width="144" height="144"></canvas>
+        </div>
+      </td>
+
+      <td style="text-align:center;">
+        <div id="rightLength"></div>
+        <div>
+          <input type="text" id="rightInput" placeholder="Right Temp" value="60">°F
+        </div>
+        <div>
+          <label for="rightInput" id="rightLabel">0</label>
+        </div>
+      </td>
+    </tr>
+
+    <tr>
+      <td></td>
+      <td style="text-align:center;">
+        <div id="bottomLength"></div>
+          <input type="text" id="bottomInput" placeholder="Bottom Temp" value="40">°F
+        </div>
+        <div>
+          <label for="bottomInput" id="bottomLabel">0</label>
+        </div>
+      </td>
+      <td></td>
+    </tr>
+  </table>
+  <div style="text-align:center; margin-top:20px;">
+    MRT = [(T₁θ₁) + (T₂θ₂) + (T₃θ₃) + (T₄θ₄) + …] / 360
+  </div>
+  <div style="text-align:center; margin-top:20px;" id="formula"></div>
+
+  <div style="text-align:center; margin-top:20px;" id="results"></div>
+    <script>
+        const topInput = document.getElementById("topInput");
+        const topLabel = document.getElementById("topLabel");
+        const rightInput = document.getElementById("rightInput");
+        const bottomInput = document.getElementById("bottomInput");
+        const leftInput = document.getElementById("leftInput");
+
+        const canvas = document.getElementById("canvas");
+        const occupant = new Image(32,16);
+        occupant.src = "occupant.png";
+
+        var A, B, C, D, E; // A is occupant, B-E are corners
+
+        function setPoints(){
+          A = { x: canvas.width / 2, y: canvas.height / 2 };
+          B = { x: 0, y: 0 };
+          C = { x: canvas.width, y: 0 };
+          D = { x: 0, y: canvas.height };
+          E = { x: canvas.width, y: canvas.height };
+        }
+        function changeRoomSize() {
+          console.log("Updating...");
+          canvas.height = parseInt(document.getElementById("roomSizeInput").value) * 12;
+          canvas.width = parseInt(document.getElementById("roomSizeInput2").value) * 12;
+          setPoints();
+          setRoomSizeLabels();
+          calculateMRT();
+        }
+          function setRoomSizeLabels() {
+            document.getElementById("topLength").textContent = `Top Interior Wall: ${canvas.width / 12} ft`;
+            document.getElementById("rightLength").textContent = `Right Interior Wall: ${canvas.height / 12} ft`;
+            document.getElementById("bottomLength").textContent = `Bottom Interior Wall: ${canvas.width / 12} ft`;
+            document.getElementById("leftLength").textContent = `Left Interior Wall: ${canvas.height / 12} ft`;
+          }
+
+        var occupantLoaded = false;
+        function drawOccupant(ctx) {
+          if (occupantLoaded) {
+            ctx.drawImage(occupant, A.x - 16, A.y - 8, 32, 16);
+          }
+        }
+
+        function calculateMRT() {
+          const ctx = canvas.getContext("2d");
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          if(!occupantLoaded) {
+            occupant.onload = () => {
+              occupantLoaded = true;
+              drawOccupant(ctx);
+            };
+          } else {
+            drawOccupant(ctx);
+          }
+
+          ctx.strokeStyle = "red";
+
+          // Draw Angle Lines from Occupant to Corners
+          ctx.beginPath();
+          ctx.moveTo(B.x, B.y);
+          ctx.lineTo(A.x, A.y);
+          ctx.moveTo(C.x, C.y);
+          ctx.lineTo(A.x, A.y);         
+          ctx.moveTo(D.x, D.y);
+          ctx.lineTo(A.x, A.y);
+          ctx.moveTo(E.x, E.y);
+          ctx.lineTo(A.x, A.y);
+          ctx.stroke();
+          
+          //Calculate Angles from Occupant to Corners
+          const angleAA = (angleAt(B, A, C) * 180 / Math.PI).toFixed(1); // angle at A
+          const angleAB = (angleAt(C, A, E) * 180 / Math.PI).toFixed(1); // angle at B
+          const angleAC = (angleAt(E, A, D) * 180 / Math.PI).toFixed(1); // angle at C
+          const angleAD = (angleAt(D, A, B) * 180 / Math.PI).toFixed(1); // angle at D
+          topLabel.textContent = `Angle A:${angleAA}°`;
+          rightLabel.textContent = `Angle B:${angleAB}°`;
+          bottomLabel.textContent = `Angle C:${angleAC}°`;
+          leftLabel.textContent = `Angle D:${angleAD}°`;
+          formula.textContent = `Formula: [(${parseFloat(topInput.value)}F * ${angleAA}°) + (${parseFloat(rightInput.value)}F * ${angleAB}°) + (${parseFloat(bottomInput.value)}F * ${angleAC}°) + (${parseFloat(leftInput.value)}F * ${angleAD}°)] / 360`;
+          results.textContent = `Mean Radiant Temperature: ${(((parseFloat(topInput.value) * angleAA) + (parseFloat(rightInput.value) * angleAB) + (parseFloat(bottomInput.value) * angleAC) + (parseFloat(leftInput.value) * angleAD))/360).toFixed(1)}°F`; 
+        }
+        function angleAt(P, Q, R) {
+            const QP = { x: P.x - Q.x, y: P.y - Q.y };
+            const QR = { x: R.x - Q.x, y: R.y - Q.y };
+
+            const dot = QP.x * QR.x + QP.y * QR.y;
+            const magQP = Math.hypot(QP.x, QP.y);
+            const magQR = Math.hypot(QR.x, QR.y);
+
+            return Math.acos(dot / (magQP * magQR)); // radians
+        }
+        
+        changeRoomSize(); // Initialize with default room size
+
+        canvas.addEventListener("mousedown", function (event) {
+          const rect = canvas.getBoundingClientRect();
+          A = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+          calculateMRT();
+        }) ;
+    </script>
+  </body>
+</html>
