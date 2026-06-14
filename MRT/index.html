@@ -32,6 +32,9 @@
     <div style="text-align:center;">
       Click inside the box to move the occupant or click the center button to place them in the middle of the room.
     </div>
+        <div style="text-align:center;">
+      You can change temps and press enter or click outside the box to update the MRT.
+    </div>
         <div style="text-align:center; margin-bottom:50px;">
       <button id="submitButton" onclick="changeRoomSize()">Center Occupant</button>
     </div>
@@ -41,7 +44,7 @@
       <td style="text-align:center;">
         <div id="topLength"></div>
         <div>
-          <input type="text" id="topInput" placeholder="Top Temp" value="72">°F
+          <input type="text" id="topInput" placeholder="Top Temp" value="72" onchange="calculateMRT()">°F
         </div>
         <div>
           <label for="topInput" id="topLabel">0</label>
@@ -54,7 +57,7 @@
       <td style="text-align:center;">
         <div id="leftLength"></div>
         <div>
-          <input type="text" id="leftInput" placeholder="Left Temp" value="72">°F
+          <input type="text" id="leftInput" placeholder="Left Temp" value="72" onchange="calculateMRT()">°F
         </div>
         <div>
           <label for="leftInput" id="leftLabel">0</label>
@@ -70,7 +73,7 @@
       <td style="text-align:center;">
         <div id="rightLength"></div>
         <div>
-          <input type="text" id="rightInput" placeholder="Right Temp" value="60">°F
+          <input type="text" id="rightInput" placeholder="Right Temp" value="60" onchange="calculateMRT()">°F
         </div>
         <div>
           <label for="rightInput" id="rightLabel">0</label>
@@ -82,7 +85,7 @@
       <td></td>
       <td style="text-align:center;">
         <div id="bottomLength"></div>
-          <input type="text" id="bottomInput" placeholder="Bottom Temp" value="40">°F
+          <input type="text" id="bottomInput" placeholder="Bottom Temp" value="40" onchange="calculateMRT()">°F
         </div>
         <div>
           <label for="bottomInput" id="bottomLabel">0</label>
