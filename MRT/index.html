@@ -179,7 +179,7 @@
           bottomLabel.textContent = `Angle C:${angleAC}°`;
           leftLabel.textContent = `Angle D:${angleAD}°`;
           var mrt = ((parseFloat(topInput.value) * angleAA) + (parseFloat(rightInput.value) * angleAB) + (parseFloat(bottomInput.value) * angleAC) + (parseFloat(leftInput.value) * angleAD)) / 360;
-          formula.textContent = `MRT = [(${parseFloat(topInput.value)}°F * ${angleAA}) + (${parseFloat(rightInput.value)}°F * ${angleAB}) + (${parseFloat(bottomInput.value)}F * ${angleAC}) + (${parseFloat(leftInput.value)}F * ${angleAD})] / 360 = ${mrt.toFixed(1)}F`;
+          formula.textContent = `MRT = [(${parseFloat(topInput.value)}°F * ${angleAA}) + (${parseFloat(rightInput.value)}°F * ${angleAB}) + (${parseFloat(bottomInput.value)}°F * ${angleAC}) + (${parseFloat(leftInput.value)}°F * ${angleAD})] / 360 = ${mrt.toFixed(1)}°F`;
           results.textContent = `Mean Radiant Temperature: ${mrt.toFixed(1)}°F`; 
         }
         function angleAt(P, Q, R) {
